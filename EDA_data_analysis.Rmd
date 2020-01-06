@@ -103,7 +103,7 @@ head(dummify(dt))
 head(update_columns(dt, c("sex", "smoker","region"), as.factor))
 
 ## Drop columns
-head(drop_columns(dt, 1:2))
+head(drop_columns(dt, 1:2),5)
 ```
 
 
