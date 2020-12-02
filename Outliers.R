@@ -78,7 +78,6 @@ magic_for(print, silent = TRUE)
 for (i in 6:7){ # dependent variable
   dt <- VCOMBCT # dataset
   model <- lm(dt[[i]] ~ DAY + trt|alival, data = dt) # Fit the model, the covariate goes first
-  sample_size <- 12*8
   cooksd <- cooks.distance(model)
   influential <- as.numeric(names(cooksd)[(cooksd > 4*mean(cooksd, na.rm=T))]) 
   outliers <- dt[influential, ]
