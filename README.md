@@ -5,3 +5,4 @@
   - randomizr: library randomizr, design experiment 
   - Seaflow: supervised machine learning (Random Forests, Decision Trees, SVM)
   
+test
