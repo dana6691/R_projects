@@ -2,10 +2,7 @@
 title: "SeaFlow instrument"
 author: Dahee kim
 date: July 29, 2019
-output:
-  html_document:
-    toc: true
-    toc_float: true
+output: github_document
 ---
 
 In this assignment, you will be working with data from the SeaFlow environmental flow cytometry instrument.
