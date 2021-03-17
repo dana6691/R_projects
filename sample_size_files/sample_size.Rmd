@@ -1,0 +1,192 @@
+---
+title: "Sample Size"
+author: "Dahee Kim"
+output: 
+  html_document:
+    toc: true # table of content true
+    code_folding: hide
+    toc_depth: 3  # upto three depths of headings (specified by #, ## and ###)
+    number_sections: true  ## if you want number sections at each table header
+    theme: united  # many options for theme, this one is my favorite.
+    highlight: tango  # specifies the syntax highlighting style
+---
+
+The most question that statisticians are receiving from researchers is how many sample size will be appropriate for the experiment. At the same time, finding the right sample size is one of the most challenging tasks for statisticians.
+When the sample size is too small, result would be dubious. If there are two patients are treated with drug A and two are treated with B, although we observe drug A is 50 % better than drug B, it is hard to conclude that two drugs are having the difference since it can be happened by chance.
+
+If we have 4000 patients who are participated in the experiment, we can say for sure that the two drug are having different efficacy. However, if the difference between A and B are only 5% then, statistically it allows rejection to the hypothesis with pvalue <0.05, but in the real experiment 5% is not a big effect. Therefore, we should be able to choose the appropriate sample size which enables us to detect the minimum difference that clinical trial requires.
+
+* minimum effect depends on the characteristics of the drug.
+    + ex) new drug has no side effects, and a low cost: we would like to have it even if the efficacy is not highsmall effect; due to the good safety profile and the low cost. --> relapses by 25% is the minimum efficacy to be worthwhile to be registered. --> **large trial(around 2000 patients)** would be needed to detect a **small effect**.
+    + ex) autologous hematopoietic stem cell transplantation: invasive treatment with a mortality risk 1-2%. --> to be worthwhile in the treatment, effect should be large --> 90% can be considered the minimum efficacy --> **small trial** would enough to detect **large effect(60 patients)**
+
+##Sample Size Calculation 
+1. **Effect size**: minimum difference with a clinical relevance we shouldn't miss. (rediction of brain atrophy rate of 30%)
+2. **Mean and Standard deviation**
+3. **Power** (1-$\beta$): probability of rejecting the null hypothesis when, in fact, the null is false.
+the probability of detecting the effect size (80% of power allows 20% of fail to detect real difference), probability of making a Type II error(accept null)
+4. **Confidence Level**(1 - $\alpha$): probability of accepting the null when, the null is true,, probability of avoiding a Type I error(reject null), usually 5%
+
+* Type I error(=significance): reject null hypothesis when it is true
+* Type II error: accept null hypothesis when it is false
+
+We want both Type I and II error to be small, which means we want a small significance level and larger power.
+
+##Power analysis
+###T-test for one sample and two samples (equal sizes)
+1. delta: mean difference
+2. sigma: standard deviation
+3. d: Effect size
+4. sig.level Significance level (Type I error probability)
+5. power Power of test (1 minus Type II error probability)
+
+* alternative: "two.sided", "greater"
+* type: 'two.sample', 'one.sample','paired'
+* d: d or (0.5*d)
+```{r message=FALSE, warning=FALSE, include=FALSE, paged.print=FALSE}
+library(readxl)
+data <- read_excel("N:/DaheeKim/April/Reef/RTBdata_all.xlsx")
+data$Location_3 <- as.numeric(data$Location_3)
+str(data)
+library(knitr)
+kable(head(data))
+
+library(reshape2)
+data1<- melt(data[,c("Location_1","Location_2","Location_3","Date","Tank","ID")],id=c("Date","Tank","ID"))
+data1$variable <- as.character(data1$variable)
+data1$Date <- as.character(data1$Date)
+data1$value <- as.numeric(data1$value)
+data1 <-na.omit(data1)
+```
+
+```{r}
+library(pwr)
+library(dplyr)
+delta <- 0.07
+sigma <- sqrt(0.23)
+d <- delta/sigma
+b<- pwr.t.test(d=d, sig.level=0.05, power=0.90, type = c('two.sample', 'one.sample', 'paired'))
+plot(b)
+
+this <- data1 %>%
+  group_by(Date) %>%
+  summarise(var = var(value))
+this %>%
+  summarise(var=mean(var))
+data1 %>%
+  group_by(Tank) %>%
+  summarise(mean = mean(value))
+delta <- 0.15
+sigma <- sqrt(4.205775)
+
+```
+
+###T-test for two samples (different size)
+1. n1: Number of observations in the first sample
+2. n2: Number of observations in the second sample
+3. d: Effect size
+4. delta: mean difference
+5. sigma: standard deviation
+```{r}
+delta <- 0.07
+sigma <- 0.4795832
+d <- delta/sigma
+c<- pwr.t2n.test(n1 = 40, n2= 45, d = d, sig.level = 0.1, power = NULL,alternative = "two.sided")
+plot(c)
+```
+
+###One-way balanced ANOVA
+Typically we want 80% of power. Power represents our ability to reject the null hypothosesis when it is false. 80% of the time we do this correctly. Converse of this, 20% of the time we risk not rejecting the null when we really should be rejecting the null when we should be rejecting the null.
+
+k: number of groups
+n: sample size in each group
+f = effect size, degree to null is false
+size of the difference between your null hypothesis and the alternative hypothesis that you hope to detect.
+  ex) dog shampoo, 25% shinier than other product, 25 is effect size
+  ex) biology, 25% more autism in one group in order to have a high chance of seeing a significant difference
+```{r message=FALSE, warning=FALSE, paged.print=FALSE}
+library(pwr)
+cohen.ES(test = "anov", size = "small")
+cohen.ES(test = "anov", size = "medium")
+cohen.ES(test = "anov", size = "large")
+a <-pwr.anova.test(k = 2, f = 0.4, sig.level = 0.05, power = 0.8)
+plot(a)
+```
+
+### Sample size by effect size
+```{r , fig.width=6, fig.heights=4}
+ptab<-cbind(NULL, NULL)       # initalize ptab
+
+ for (i in c(0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.1, 1.2)){
+   pwrt<-pwr.t.test(d=i,power=.8,sig.level=.05,type="two.sample",alternative="two.sided")
+   ptab<-rbind(ptab, cbind(pwrt$d, pwrt$n))
+ }
+
+par(bg = "Corn Silk")
+plot(ptab[,1],ptab[,2],type="b",xlab="Effect Size",ylab="Sample Size", font=2,lwd=2,col="Dark Olive Green")
+abline(h=seq(0,500,50), v=seq(0,1.2, 0.1), lty=3, col="gray",pch=1, font=2)
+```
+
+###Compare different significance level
+```{r , fig.width=6, fig.heights=4}
+sig <- c(0.05,0.1,0.2) #significance level
+np <- length(sig)
+groupmeans <- c(550, 598, 598, 646)
+n <- c(seq(2,10,by=1),seq(12,20,by=2),seq(25,50,by=5)) #sample size
+p=list()
+
+for (i in 1:np){
+  p[[i]] <- power.anova.test(groups = length(groupmeans), 
+between.var = var(groupmeans), within.var = 6400, 
+power=NULL, sig.level=sig[i],n=n)
+}
+
+par(bg = "grey95")
+plot(n,p[[1]]$power*100,ylab="Power = 1-beta",lwd=2,xlab="Sample Size",font=2)
+lines(n,p[[1]]$power*100,type="b",col="red",lty=2,lwd=2)
+lines(n,p[[2]]$power*100,type="b",col="blue",lty=2,lwd=2)
+lines(n,p[[3]]$power*100,type="b",col="black",lty=2,lwd=2)
+legend("bottomright",title="significance level",legend=c("0.05", "0.1","0.2"),col=c("red","blue","black"),lwd=2)
+```
+
+
+##Sample size with the population known
+```{r message=FALSE, warning=FALSE, paged.print=FALSE}
+sample.size.table = function(p=0.5, margin=.05, population) {
+  z.val=c(0.8416212, 1.036433,1.281551565545, 1.644853626951,1.9599640,
+          2.326347874041)
+  ss = (z.val^2 * p * (1-p))/(margin^2)
+  p.ss = ss/(population-1+ss)*population
+  c.level = c("60%","70%","80%","90%","95%","98%")
+  results = data.frame(c.level, round(p.ss, digits = 0))
+  names(results) = c("Confidence Level", "Sample Size")
+  METHOD = c("Suggested sample sizes at different confidence levels")
+  moe = paste((margin*100), "%", sep="")
+  resp.dist = paste((p*100),"%", sep="")
+  pre = structure(list(Population=population,
+                       "Margin of error" = moe,
+                       "Response distribution" = resp.dist,
+                       method = METHOD),
+                  class = "power.htest")
+  print(pre)
+  print(results)
+}
+
+library(kableExtra)
+kable(sample.size.table(0.5 ,0.05, 200000))
+#confidence interval = 0.05,,, range of values that is likely to contain an unknown population parameter.
+#confidence level = probability that value falls within a specified range of values, we can be 60% certain
+
+```
+
+##Minimum sample size calculated by Yamane method
+```{r}
+#sample size = N/(1+Ne2)
+
+N=200000
+e2=0.05^2
+sample_size = N/(1+N*e2)
+sample_size
+
+```
+

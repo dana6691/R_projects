@@ -1,0 +1,93 @@
+---
+title: "Word Cloud"
+author: "Dahee Kim"
+date: "`r Sys.Date()`"
+output:
+  prettydoc::html_pretty:
+    theme: hpstr
+    highlight: github
+
+---
+
+##pre-processing
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+#Needed <- c("tm", "SnowballCC", "RColorBrewer", "ggplot2", "wordcloud", "biclust", "cluster", "igraph", "fpc")
+#install.packages(Needed, dependencies = TRUE)
+require(tm)
+require(wordcloud)
+require(RColorBrewer)
+require(wordcloud2)
+require(readxl)
+filePath = read_excel("C:/Users/daheekim/OneDrive - Ralco Nutrition, Inc/DaheeKim/Rfile/Rpubs/wordcloud/q44.xlsx")
+write.table(filePath, file = "C:/Users/daheekim/OneDrive - Ralco Nutrition, Inc/DaheeKim/Rfile/Rpubs/wordcloud/q44.txt", sep = "\t",row.names = TRUE, col.names = NA)
+# Load text 
+text <- readLines("C:/Users/daheekim/OneDrive - Ralco Nutrition, Inc/DaheeKim/Rfile/Rpubs/wordcloud/q44.txt")
+```
+
+```{r}
+# Create a corpus  
+docs <- Corpus(VectorSource(text))
+```
+
+```{r}
+# Convert the text to lower case
+docs <- tm_map(docs, content_transformer(tolower))
+# Remove numbers
+docs <- tm_map(docs, removeNumbers)
+# Remove stopwords for the language 
+docs <- tm_map(docs, removeWords, stopwords("english"))
+# Remove punctuations
+docs <- tm_map(docs, removePunctuation)
+# Eliminate extra white spaces
+docs <- tm_map(docs, stripWhitespace)
+# Remove your own stopwords
+docs <- tm_map(docs, removeWords, c("shrimp","nothing","none","nope","really","love")) 
+```
+
+```{r}
+## Create term-document matrix
+tdm <- TermDocumentMatrix(docs)
+m <- as.matrix(tdm)
+word <- sort(rowSums(m),decreasing=TRUE)
+d <- data.frame(word = names(word),freq=word)
+```
+
+<center>
+![Palettes](https://raw.githubusercontent.com/dana6691/R_project/master/image/palettes.png){width=200px height=400px}
+</center>
+
+
+##Plot I
+```{r}
+# Plot the word cloud
+set.seed(1234)
+wordcloud(d$word,d$freq,
+            min.freq=3, max.words=200,
+            random.order=FALSE, rot.per=0.35, 
+            use.r.layout=FALSE,  colors= brewer.pal(8, "RdBu"))
+```
+
+##Plot II
+```{r}
+wordcloud2(data=d, size = 0.7, shape = 'pentagon')
+```
+
+##Words frequency table
+```{r}
+# Show the top10 words and their frequency
+head(d, 10)
+barplot(d[1:10,]$freq, las = 2, 
+        names.arg = d[1:10,]$word,
+        col ="lightblue", main ="Most frequent words",
+        ylab = "Word frequencies")
+```
+
+
+##Associated words
+```{r}
+#association between frequent terms
+findFreqTerms(tdm, lowfreq = 50)
+asso <- findAssocs(tdm, terms = "like", corlimit = 0.2)
+head(asso)
+barplot(asso$like, main="like Distribution", horiz=FALSE,las=2)
+```

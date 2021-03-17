@@ -32,9 +32,10 @@ this data, a central task is classification of particles. Based on the
 optical measurements of the particle, it can be identified as one of
 several populations.
 
-\#\#Step 1: Read and summarize the data Using R, read the file
-seaflow\_21min.csv and get the overall counts for each category of
-particle.
+## Step 1: Read and summarize the data
+
+Using R, read the file seaflow\_21min.csv and get the overall counts for
+each category of particle.
 
 ``` r
 library("knitr")
@@ -82,7 +83,7 @@ table(data$pop)
   - **chl\_small**, chl\_big: Measurements related to the wavelength of
     light corresponding to chlorophyll.
 
-\#\#Step 2: Split the data into test and training sets
+## Step 2: Split the data into test and training sets
 
 ``` r
 #install.packages("caret")
@@ -117,7 +118,9 @@ summary(Train)
     ##  3rd Qu.: 5885   3rd Qu.:38305   3rd Qu.:12832   ultra  :10269  
     ##  Max.   :58627   Max.   :64805   Max.   :52608
 
-\#\#Step 3: Plot the data split the data into 20/80
+## Step 3: Plot the data
+
+split the data into 20/80
 
 ``` r
 library(ggplot2)
@@ -132,7 +135,7 @@ ggplot(Test, aes(x=pe,y=chl_small,color=pop)) + geom_point()
 
 ![](SeaFlow_files/figure-gfm/unnamed-chunk-3-2.png)<!-- -->
 
-\#\#Step 4: Train a decision tree.
+## Step 4: Train a decision tree.
 
 ``` r
 head(Train)
@@ -175,7 +178,7 @@ print(dt_model)
     ##      6) chl_small>=38113.5 655   134 nano (0.078 0.8 0 0.063 0.064) *
     ##      7) chl_small< 38113.5 9174   142 synecho (0 0.00087 0.0049 0.98 0.0097) *
 
-\#\#Step 5: Evaluate the decision tree on the test data.
+## Step 5: Evaluate the decision tree on the test data.
 
 ``` r
 dt_predict <- predict(dt_model, newdata=Test, type="class")
@@ -195,7 +198,7 @@ pe=2000 would take branch 2, branch 4, and be classified as pico. Crypto
 population is not recognizing. chl\_small is the most important vairable
 in predicting the class population.
 
-\#\#Step 6: Build and evaluate a random forest.
+## Step 6: Build and evaluate a random forest.
 
 ``` r
 library(randomForest)
@@ -227,7 +230,7 @@ importance(rf_model)
 Appear most important in terms of gini impurity measure are pe and
 chl\_small
 
-\#\#Step 7: Train a support vector machine model and compare results.
+## Step 7: Train a support vector machine model and compare results.
 
 ``` r
 library(e1071)
@@ -242,7 +245,7 @@ summary(svm_result)
 
 accuracy is 0.9194.
 
-\#\#Step 8: Construct confusion matrices
+## Step 8: Construct confusion matrices
 
 ``` r
 table(pred = dt_predict, true = Test$pop) # Decision tree
@@ -300,8 +303,7 @@ plot(data$fsc_perp, data$pe)
 Pico appears to be the most common error. We assumed variables were
 continuous, but fsc\_big has lot of clustering.
 
-\#\#Step 9: Remove File 208 from the mix and run the SVM again. What’s
-the change in accuracy?
+## Step 9: Remove File 208 from the mix and run the SVM again. What’s the change in accuracy?
 
 ``` r
 newfol <- formula(pop ~ fsc_small + fsc_perp + pe + chl_big + chl_small)

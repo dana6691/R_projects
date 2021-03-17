@@ -1,0 +1,236 @@
+---
+title: "Table Display"
+author: Dahee Kim
+output: github_document
+always_allow_html: true
+---
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+#theme style 
+#sandstone, united, journalm flatly, darkly, cyborg, cosmo, cerulean, LUX, Literam, Lumen, minty, pulse, materia, sketchy, simplex. spacelab, solar, slate, yeti, superhero
+#"default", "cerulean", "journal", "flatly", "darkly", "readable", "spacelab", "united", "cosmo", "lumen", "paper", "sandstone", "simplex", "yeti"
+# https://bootswatch.com/
+#https://holtzy.github.io/Pimp-my-rmd/  #sososososoos
+
+```
+\begin{shaded}
+Red text with a gray background.
+\end{shaded}
+
+
+```{r results = 'asis', global_options, include=FALSE}
+#global options
+knitr::opts_chunk$set( warning=FALSE, message=FALSE)
+```
+
+### kable
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "blue">
+**kable**(x, format, digits = getOption("digits"), row.names = NA, col.names = NA, align, 
+    caption = NULL, label = NULL, format.args = list(), escape = TRUE, ...)
+</div>
+------------------------------------------------------------------------------------------
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+
+<div class = "blue">
+The function *kable* is a simple table generator, from library `knitr` 
+
+* digits: number of digits for individual columns
+* align: 'l'(left), 'c'(center),'r'(right) ex) c('c','l','c')
+* caption
+* label
+
+</div>
+
+```{r message=FALSE, warning=FALSE, paged.print=FALSE}
+knitr::kable(head(mtcars), digits = 2)
+```
+
+### DT
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "blue">
+**datatable**(data, options = list(), class = "display", callback = JS("return table;"), 
+    rownames, colnames, container, caption = NULL, filter = c("none", 
+        "bottom", "top"), escape = TRUE, style = "default", width = NULL, 
+    height = NULL, elementId = NULL, fillContainer = getOption("DT.fillContainer", 
+        NULL), autoHideNavigation = getOption("DT.autoHideNavigation", 
+        NULL), selection = c("multiple", "single", "none"), extensions = list(), 
+    plugins = NULL, editable = FALSE)
+</div>
+------------------------------------------------------------------------------------------
+<div class = "blue">
+* caption
+* filter: add filter to each column
+* editable: TRUE/FALSE
+* colnames: colnames = c('Here', 'Are', 'Some', 'New', 'Names') colnames = c('A Better Name' = 'Sepal.Width') colnames = c('Another Better Name' = 2, 'Yet Another Name' = 4
+* pageLength(options): limited showing row  c("none", "bottom", "top")
+* scrollX(options): get vertical scroll bar
+</div>
+```{r message=FALSE, warning=FALSE, paged.print=FALSE}
+library(DT)
+longley <- data.frame(longley)
+datatable(head(longley), rownames = FALSE, filter="top", options = list(pageLength = 6, scrollX=T) )
+```
+
+### tibble
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+
+<div class = "blue">
+**tibble**(..., .rows = NULL, .name_repair = c("check_unique", "unique",
+  "universal", "minimal"))
+</div>
+--------------------------------------------------------------------------------------------
+<div class = "blue">
+* Re-imagining of the data.frame
+* tibble() never changes the type of the inputs,never changes the names of variables, easier than data.frame()
+</div>
+```{r message=FALSE, warning=FALSE, paged.print=FALSE}
+library(tibble)
+as_tibble(longley)
+tibble(longley$GNP, longley$Unemployed, total = longley$GNP + longley$Unemployed)
+```
+
+### xtable
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "blue">
+**xtable**(x, caption = NULL, label = NULL, align = NULL, digits = NULL,
+display = NULL, auto = FALSE, ...)
+</div>
+```{r xtable, fig.height=10, fig.width=10, message=FALSE, warning=FALSE, paged.print=FALSE}
+library(xtable)
+f1 <- aov(Year ~ GNP + Unemployed +  Population, data = longley) #latex input
+xtable(f1)
+```
+
+### expss
+<div class = "blue">
+*expss* provides tabulation functions with support for 'SPSS'-style labels, multiple / nested banners, weights, multiple-response variables and significance testing
+</div>
+```{r fig.height=10, fig.width=10}
+library(expss)
+mtcars = apply_labels(mtcars,
+                      mpg = "Miles/(US) gallon",
+                      cyl = "Number of cylinders",
+                      disp = "Displacement (cu.in.)",
+                      hp = "Gross horsepower",
+                      drat = "Rear axle ratio",
+                      wt = "Weight (1000 lbs)",
+                      qsec = "1/4 mile time",
+                      vs = "Engine",
+                      vs = c("V-engine" = 0,
+                             "Straight engine" = 1),
+                      am = "Transmission",
+                      am = c("Automatic" = 0,
+                             "Manual"=1),
+                      gear = "Number of forward gears",
+                      carb = "Number of carburetors"
+)
+# Different statistics for different variables.
+mtcars %>%
+    tab_cols(total(), vs) %>%
+    tab_cells(mpg) %>% 
+    tab_stat_mean() %>% 
+    tab_stat_valid_n() %>% 
+    tab_cells(am) %>%
+    tab_stat_cpct(total_row_position = "none", label = "col %") %>%
+    tab_stat_rpct(total_row_position = "none", label = "row %") %>%
+    tab_stat_tpct(total_row_position = "none", label = "table %") %>%
+    tab_pivot(stat_position = "inside_rows") 
+```
+
+
+### formattable
+```{r}
+library("formattable")
+# Read CSV into R
+MyData <- read.csv(file="C:/Users/daheekim/OneDrive - Ralco Nutrition, Inc/Rfile/Rpubs/Visualization/african_crises.csv", header=TRUE, sep=",")
+mydata <- subset(MyData, MyData$year< 1870)
+formattable(table(mydata$year, mydata$country))
+```
+
+
+### tidyr
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+library(formattable)
+library(tidyr)
+library(dplyr)
+library(readxl)
+texasdata <- read.csv("https://raw.githubusercontent.com/dana6691/R_project/master/Data/Imagine_Austin_Indicators.csv", header=TRUE, sep=",")
+
+# select rows, columns, average by rows, percentage of change
+i1 <- texasdata %>%
+  filter(`Indicator.Name` %in% 
+           c('Prevalence of Obesity', 'Prevalence of Tobacco Use', 
+             'Prevalence of Cardiovascular Disease', 'Prevalence of Diabetes')) %>%
+  select(c(`Indicator.Name`, `X2011`, `X2012`, `X2013`, `X2014`, `X2015`, `X2016`)) %>%
+  mutate (Average = round(rowMeans(
+    cbind(`X2011`, `X2012`, `X2013`, `X2014`, `X2015`, `X2016`), na.rm=T),2), 
+    `Improvement` = round((`X2016`-`X2011`)/`X2011`*100,2))
+i1
+formattable(i1)
+```
+
+
+
+### stargazer
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "blue">
+**stargazer**(  ..., 
+            type = "latex", title = "", style = "default", 
+            summary = NULL, out = NULL, out.header = FALSE,
+            column.labels = NULL, column.separate = NULL,
+            covariate.labels = NULL, dep.var.caption = NULL,
+            dep.var.labels = NULL, dep.var.labels.include = TRUE,
+            align = FALSE, 
+            coef = NULL, se = NULL, t = NULL, p = NULL,
+            t.auto = TRUE, p.auto = TRUE,
+            ci = FALSE, ci.custom = NULL,
+            ci.level = 0.95, ci.separator = NULL,
+            add.lines = NULL, 
+            apply.coef = NULL, apply.se = NULL, 
+            summary.logical = TRUE, summary.stat = NULL,
+            nobs = TRUE, mean.sd = TRUE, min.max = TRUE, 
+            median = FALSE, iqr = FALSE )
+</div>
+--------------------------------------------------------------------------------------------
+<div class = "blue">
+* Type: "text", "html"
+* ci: TRUE/FALSE
+* ci.level: 0.8, 0.9
+* omit.stat: =c("f", "ser")
+</div>
+```{r mylatextable, results = "asis"}
+library(stargazer)
+f1 <- lm(mpg ~ wt, mtcars) #2 OLS models
+f2 <- lm(mpg ~ wt + hp, mtcars)
+f3 <- lm(mpg ~ wt + hp + cyl, mtcars)
+stargazer(f1, f2, f3, type = 'html')
+
+```
+
+```{r results = 'asis', warning=FALSE, message=FALSE}
+library(stargazer)
+f1 <- lm(mpg ~ wt, mtcars) #2 OLS models
+f2 <- lm(mpg ~ wt + hp, mtcars)
+f3 <- lm(mpg ~ wt + hp + cyl, mtcars)
+stargazer(f1, f2, f3, type = 'html')
+
+correlation.matrix <- cor(mtcars) #correlation matrix
+stargazer(correlation.matrix, type="html")
+```
+
+
+
+

@@ -1,0 +1,23 @@
+h2 {
+    /*margin: 0.2em; length of the box*/
+    padding: 0.5em;/*height of the box*/
+    background-color: #FFFAFA;
+    font-size: 20px;
+    font-family: verdana;
+    border: 3px solid black;
+    border-radius: 15px;
+}
+
+.{
+    /*margin: 0.2em; length of the box*/
+    /*padding: 3em;/*height of the box*/
+    padding: 50px;
+    background-color: #FFFFF0;
+    font-size: 20px;
+    font-family: verdana;
+    border-radius: 15px;
+    text-align: left;
+}
+ .tocify-header { 
+     text-indent: 10px; 
+ } 

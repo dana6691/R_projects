@@ -17,7 +17,7 @@ The scale of the data can be quite large, and is expected to grow significantly:
 
 While there are a number of challenging analytics tasks associated with this data, a central task is classification of particles. Based on the optical measurements of the particle, it can be identified as one of several populations.
 
-##Step 1: Read and summarize the data
+## Step 1: Read and summarize the data
 Using R, read the file seaflow_21min.csv and get the overall counts for each category of particle. 
 ```{r}
 library("knitr")
@@ -39,7 +39,7 @@ table(data$pop)
 
 - **chl_small**, chl_big: Measurements related to the wavelength of light corresponding to chlorophyll.
 
-##Step 2: Split the data into test and training sets
+## Step 2: Split the data into test and training sets
 ```{r message=FALSE, warning=FALSE, paged.print=FALSE}
 #install.packages("caret")
 library(caret)
@@ -51,7 +51,7 @@ Test  <- data[-trainIndex,]
 summary(Train)
 ```
 
-##Step 3: Plot the data
+## Step 3: Plot the data
 split the data into 20/80
 ```{r}
 library(ggplot2)
@@ -59,7 +59,7 @@ ggplot(Train, aes(x=pe,y=chl_small,color=pop)) + geom_point()
 ggplot(Test, aes(x=pe,y=chl_small,color=pop)) + geom_point()
 ```
 
-##Step 4: Train a decision tree.
+## Step 4: Train a decision tree.
 ```{r message=FALSE, warning=FALSE, paged.print=FALSE}
 head(Train)
 library(rpart)
@@ -68,7 +68,7 @@ dt_model <- rpart(fol, method="class", data=Train)
 print(dt_model)
 ```
 
-##Step 5: Evaluate the decision tree on the test data.
+## Step 5: Evaluate the decision tree on the test data.
 ```{r message=FALSE, warning=FALSE, paged.print=FALSE}
 dt_predict <- predict(dt_model, newdata=Test, type="class")
 dt_result = dt_predict == Test$pop
@@ -78,7 +78,7 @@ summary(dt_result)
 For example, in this bogus tree, a particle with chl_small=25000 and pe=2000 would take branch 2, branch 4, and be classified as pico.
 Crypto population is not recognizing. chl_small is the most important vairable in predicting the class population.
 
-##Step 6: Build and evaluate a random forest.
+## Step 6: Build and evaluate a random forest.
 ```{r message=FALSE, warning=FALSE, paged.print=FALSE}
 library(randomForest)
 rf_model <- randomForest(fol, data=Train)
@@ -90,7 +90,7 @@ importance(rf_model)
 ```
 Appear most important in terms of gini impurity measure are pe and chl_small
 
-##Step 7: Train a support vector machine model and compare results.
+## Step 7: Train a support vector machine model and compare results.
 ```{r message=FALSE, warning=FALSE, paged.print=FALSE}
 library(e1071)
 svm_model = svm(fol, data=Train)
@@ -100,7 +100,7 @@ summary(svm_result)
 ```
 accuracy is 0.9194.
 
-##Step 8: Construct confusion matrices
+## Step 8: Construct confusion matrices
 ```{r message=FALSE, warning=FALSE, paged.print=FALSE}
 table(pred = dt_predict, true = Test$pop) # Decision tree
 table(pred = rf_predict, true = Test$pop) # Random Forest
@@ -112,7 +112,7 @@ plot(data$fsc_perp, data$pe)
 ```
 Ultra and Pico appears to be the most common error. We assumed variables were continuous, but fsc_big has lot of clustering. 
 
-##Step 9: Remove File 208 from the mix and run the SVM again. What's the change in accuracy?
+## Step 9: Remove File 208 from the mix and run the SVM again. What's the change in accuracy?
 ```{r message=FALSE, warning=FALSE, paged.print=FALSE}
 newfol <- formula(pop ~ fsc_small + fsc_perp + pe + chl_big + chl_small)
 data2 = subset(data, data$file_id != 208)

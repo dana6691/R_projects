@@ -1,0 +1,257 @@
+
+---
+title: "ANOVA"
+author: "Dahee Kim"
+date: "`r Sys.Date()`"
+output: rmdformats::material
+---
+```{r message=FALSE, warning=FALSE, include=FALSE}
+library(readxl)
+data <- read_excel("N:/DaheeKim/February/termination_TSCW.xlsx")
+library(gplots)
+library(car)
+library(dplyr)
+library(doBy)
+```
+
+
+# Data summary
+```{r message=FALSE, warning=FALSE}
+#change column names
+oldnames = c("Initial_ind_weight","Final_ind_weight")
+newnames = c("Initial_weight","Final_individual_weight")
+colnames(data)[colnames(data) %in% oldnames] <- newnames
+attach(data)
+
+#summary of data
+library(psych)
+str(data)
+
+#Mean, Sum of each Treatment
+data <- data[,c(2,16,18,19)]
+
+#Subset data
+data$Label[data$Label == "Ctrl 1"] <- "Ctrl1"
+data$Label[data$Label == "Ctrl 2"] <- "Ctrl2"
+data$Label <- as.factor(data$Label)
+data %>% group_by(Label) %>% summarise_each(funs(mean, sd))
+test1 <- c("A","B","P","R","Ctrl1", "Ctrl2","K")
+data <- data[data$Label %in% test1, ]
+
+```
+
+```{r message=FALSE, warning=FALSE}
+# plotmeans
+plotmeans(ADG ~ Label, data = data, frame = FALSE,
+          xlab = "Treatment", ylab = "ADG",
+          main="Mean Plot with 95% CI") 
+```
+
+# Assumption Test
+## Homogeneity of variances Test
+```{r message=FALSE, warning=FALSE}
+# 1. Homogeneity of variances
+#leveneTest
+library(car)
+levene <- vector(mode = "list", length = 3)
+anova <- vector(mode = "list", length = 3)
+for (i in 2:4){
+  levene[[i-1]] <-leveneTest(data[[i]]~data[[1]],data=data, center=median) #default center is mean
+  cat(paste("* ", colnames(data)[i]),'\n')
+  print(levene[[i-1]])
+  anova[[i-1]] <-aov(data[[i]]~data[[1]],data=data)
+  plot(anova[[i-1]], 1)
+}
+```
+H0 is that all variances are equal. The test reveals a p-value greater than 0.05, indicating that there is no significant difference between the group variances in location.
+
+## Normality Test
+```{r message=FALSE, warning=FALSE}
+# 2. Normality
+# Run Shapiro-Wilk test
+normtest <- vector(mode = "list", length = 3)
+anova <- vector(mode = "list", length = 3)
+for (i in 2:4){
+  normtest[[i-1]] <-shapiro.test(data[[i]])
+  cat(paste("* ", colnames(data)[i]),'\n')
+  print(normtest[[i-1]]$p.value)
+  anova[[i-1]] <-aov(data[[i]]~data[[1]],data=data)
+  plot(anova[[i-1]], 2)
+}
+```
+
+# Data transformation
+```{r message=FALSE, warning=FALSE}
+#square root
+st <- function(p) { sqrt(p) }
+stnorm <- vector(mode = "list", length = 5)
+for (i in 2:4){
+  stnorm[[i-1]] <-shapiro.test(st(data[[i]]))
+  cat(paste("* ", colnames(data)[i]),'\n')
+  print(stnorm[[i-1]]$p.value)
+}
+
+#1/square root
+re_sqrt <- function(p) { 1/sqrt(p) }
+
+
+#logit
+logitTransform <- function(p) { log(p/(1-p)) }
+logitnorm <- vector(mode = "list", length = 5)
+for (i in 2:4){
+  logitnorm[[i-1]] <-shapiro.test(logitTransform(data[[i]]))
+  cat(paste("* ", colnames(data)[i]),'\n')
+  print(logitnorm[[i-1]]$p.value)
+}
+
+#log
+logTransform <- function(p) { log(p) }
+lognorm <- vector(mode = "list", length = 5)
+for (i in 2:4){
+  lognorm[[i-1]] <-shapiro.test(logTransform(data[[i]]))
+  cat(paste("* ", colnames(data)[i]),'\n')
+  print(lognorm[[i-1]]$p.value)
+}
+
+#1/log
+relogTransform <- function(p) { 1/(log(p)) }
+
+#loglog
+loglogTransform <- function(p) { log(log(p)) }
+
+
+#1/loglog
+reloglogTransform <- function(p) { 1/(log(log(p))) }
+
+#asine
+asinTransform <- function(p) { asin(sqrt(p)) }
+
+#normalized
+rangeScale <- function(x) { (x-min(x)) / (max(x)-min(x)) }
+```
+
+# parametric ANOVA
+```{r message=FALSE, warning=FALSE}
+# ANOVA Test - Parametric 
+anova <- vector(mode = "list", length = 2)
+for (i in 2:4){
+  anova[[i-1]] <-aov(data[[i]]~data[[1]],data=data)
+  cat(paste("* ", colnames(data)[i]),'\n')
+  print(summary(anova[[i-1]]))
+}
+```
+
+## Post-hoc Analysis: letter grouping (1)
+```{r message=FALSE, warning=FALSE}
+#Tukey HSD (Tukey Honest Significant Differences)
+library(agricolae)
+anova <- vector(mode = "list", length = 2)
+for (i in 2:4){
+  anova[[i-1]] <-aov(data[[i]]~data[[1]],data=data)
+  cat(paste("* ", colnames(data)[i]),'\n')
+  print(TukeyHSD(anova[[i-1]]))
+  print(HSD.test(anova[[i-1]],"data[[1]]", group=TRUE)$'groups')
+}
+```
+
+## Post-hoc Analysis: letter grouping (2)
+```{r message=FALSE, warning=FALSE, paged.print=FALSE}
+library(multcomp)
+Tukey <- vector(mode = "list", length = 3)
+for (i in 2:4){
+  anova[[i-1]] <-aov(data[[i]]~Label,data=data)
+  cat(paste("* ", colnames(data)[i]),'\n')
+  print(cld(summary(glht(anova[[i-1]], linfct = mcp(Label = "Tukey")))))
+  old.par <- par(mai=c(1,1,1.25,1), no.readonly = TRUE)
+  plot(cld(summary(glht(anova[[i-1]], linfct = mcp(Label = "Tukey")))))
+  par(old.par)
+}
+
+```
+
+```{r}
+#Multiple Comparisons
+#Least Significant Difference (LSD)
+###https://cran.r-project.org/web/packages/agricolae/vignettes/tutorial.pdf
+library(agricolae)
+data <- read_excel("M:/tru Shrimp Systems/Previous Trials/TSCW_all.xlsx", sheet = "TSCW 200102")
+data <- data[,c(7,10,13,14,18,19)]
+model<-aov(ADG ~ Treatment, data=data)
+
+out<-LSD.test(model, "Treatment", group=TRUE, p.adj= "holm")
+print(out$group)
+
+```
+```{r}
+#Duncan's New Multiple-Range Test
+duncan.test(model, "Treatment",console=TRUE)
+```
+
+```{r}
+#Tukey's W Procedure (HSD)
+ outHSD<- HSD.test(model, "Treatment",console=TRUE)
+```
+
+# non-parametric ANOVA
+Kruskal-wallis test is an analysis of variancc performed on ranks. 
+If the distributons among group are similars, Kruskal-Wallis test can test for a difference in medians. When the distributions are significantly different, rejection of null hypothesis can be happened by lack of independence. If we found differences among different levels of a group, post-hoc analysis can be performed to determine which levels of the independent variable differ from each other level. 
+```{r message=FALSE, warning=FALSE}
+#Kruskal-wallis test
+kruskal <- vector(mode = "list", length = 2)
+for (i in 2:4){
+  kruskal[[i-1]] <-kruskal.test(data[[i]]~data[[1]],data=data)
+  cat(paste("* ", colnames(data)[i]),'\n')
+  print(kruskal[[i-1]])
+}
+```
+
+## post-hoc tests(Dunn's test)
+Dunn's test can even apply to unequal number of observations in each level of the group.  
+To be free from type I error, p-value adjustment needs to be made. The options can be; "sidak", "holm", "hs", "hochberg", "bh", "by", "bonferroni"
+```{r message=FALSE, warning=FALSE}
+library(rcompanion)
+library(FSA)
+Dunn <- vector(mode = "list", length = 2)
+for (i in c(3)){
+  Dunn[[i-1]] <-dunnTest(data[[i]]~data[[1]],data=data,method="bh")
+  PT = Dunn[[i-1]]$res
+  print(PT)
+  print(cldList(comparison = Dunn[[i-1]]$res$Comparison,
+        p.value    = Dunn[[i-1]]$res$P.adj,
+        threshold  = 0.05))
+}
+```
+
+```{r eval=FALSE, message=FALSE, warning=FALSE, include=FALSE, paged.print=FALSE}
+#Wilcoxon test code
+data1 <- data
+wilcox <- vector(mode = "list", length = 2)
+for (i in 3){
+  wilcox[[i-1]] <-pairwise.wilcox.test(x=data1[[i]],g=data1$Label, p.adjust.method = "BH")
+  PT = wilcox[[i-1]]$res
+  print(PT)
+  print(cldList(comparison =  wilcox[[i-1]]$res$Comparison,
+        p.value    = Dunn[[i-1]]$res$P.adj,
+        threshold  = 0.5))
+  cat(paste("* ", colnames(data)[i]),'\n')
+}
+pairwise.wilcox.test(x=data1[[4]],g=data1$Label, p.adjust.method = "fdr")$res
+```
+
+
+## post-hoc tests(Nemenyi test)
+Nemenyi test is one of the post-hoc method of Kruskal-walli. It is not appropriate for groups with unequal numbers of observations. 
+"holm", "hochberg", "hommel", "bonferroni", "BH", "BY", "fdr", "none"
+```{r message=FALSE, warning=FALSE}
+#Pairwise comparisons using Tukey and Kramer (Nemenyi) test	with Tukey-Dist approximation for independent samples 
+library(PMCMRplus)
+data1 <- data
+nemenyi <- vector(mode = "list", length = 3)
+for (i in 2:4){
+  cat(paste("* ", colnames(data)[i]),'\n')
+  nemenyi[[i-1]] <-kwAllPairsNemenyiTest(data1[[i]] ~ data1$Label,data = data1)
+  print(summary(nemenyi[[i-1]]))
+  plot(nemenyi[[i-1]])
+}
+```
+

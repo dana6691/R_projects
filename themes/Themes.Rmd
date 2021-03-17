@@ -1,0 +1,88 @@
+---
+title: "rmarkdown themes"
+author: "Dahee Kim"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    css: style_demo.css
+    toc: true
+    toc_float:
+      collapsed: false
+      smooth_scroll: false
+---
+
+<h2>html_document</h2>
+      <ul>
+        <li>theme</li>
+        <ul>
+          <li>`cerulean`, `journal`, `flatly`, `darkly`, `readable`, `spacelab`, `united`, `cosmo`, `lumen`, `paper`, `sandstone`, `simplex`and `yeti`</li>
+        </ul>
+        <li>highlight</li>
+        <li>functions</li>
+        <li>highlight : syntax highlighting</li>
+      </ul>
+There are multiple themes and highlights we can use for html_document. </br></br> 
+[**theme **]: `cerulean`, `journal`, `flatly`, `darkly`, `readable`, `spacelab`, `united`, `cosmo`, `lumen`, `paper`, `sandstone`, `simplex`and `yeti`</br> 
+[**highlight **]: `espresso`, `tango`, `pygments`, `kate`, `monochrome`, `zenburn`, `haddock` and `textmate`</br> 
+[**functions **]
+      <ul>
+        <li>toc: true</li>
+        <li>number_sections: true</li>
+        <li>toc_depth: 4</li>
+        <li>toc_float: true</li>
+        <ul>
+          <li>collapsed: false</li>
+          <li>smooth_scroll: false</li>
+        </ul>
+        <li>css: styles.css</li>
+        <li>code_folding:hide</li>
+        <li>mathjax: local</li>
+      </ul>
+      
+```yaml
+title: "various themes""
+author: "dahee kim"
+date: "`r Sys.Date()`"
+output:
+  rmarkdown::html_document:
+    theme: lumen
+    highlight: github
+```
+
+<h2>prettydoc</h2>
+
+`html_pretty` in the [**prettydoc**](http://github.com/yixuan/prettydoc/)
+package is a new output format for creating HTML document from R Markdown files.
+
+`html_pretty` currently supports five page themes (`cayman`, `tactile`,`leonids`,`hpstr` and
+`architect`), and two syntax highlight styles (`github` and `vignette`).
+
+```yaml
+output:
+  prettydoc::html_pretty:
+    theme: architect
+    highlight: github
+```
+
+<h2>rmdformats</h2>
+
+[**format **] : (`material`, `readthedown`, `html_clean` or `html_docco`)</br>
+[**options **]</br>
+    <ul>
+      <ul>
+        <li>fig_width : figures width, in inches</li>
+        <li>fig_height : figures height, in inches</li>
+        <li>fig_caption : toggle figure caption rendering</li>
+        <li>highlight : syntax highlighting</li>
+        <li>thumbnails : if TRUE, display content images as thumbnails</li>
+        <li>lightbox : if TRUE, add lightbox effect to content images</li>
+        <li>gallery : if TRUE, add navigation between images when displayed in lightbox</li>
+        <li>use_bookdown : if TRUE, will use bookdown instead of rmarkdown for HTML rendering</li>
+      </ul>
+    </ul>
+
+```yaml
+title: "rmarkdown themes"
+author: "Dahee Kim"
+output: rmdformats::material
+```

@@ -1,0 +1,91 @@
+---
+title: "apply() family"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+---
+* An aggregating function, like for example the mean, or the sum (that return a number or scalar);
+* Transforming or subsetting functions; and
+* Vectorized functions, which yield more complex structures like lists, vectors, matrices, and arrays.
+
+* Family is made up of the apply(), lapply() , sapply(), vapply(), mapply(), rapply(), and tapply() functions.
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE} 
+data(LifeCycleSavings)
+data <- LifeCycleSavings
+head(data)
+str(data)
+```
+Function  | Argument | Input | Output
+------------- | ------------- | ------------- | ------------- |
+apply | apply(x, MARGIN, FUN) | Data frame or matrix | vector, list, array
+lapply | 	lapply(X, FUN) | 	List, vector or data frame | 	List
+sapply | 	sapply(X, FUN) | 	List, vector or data frame | 	vector or matrix
+
+###apply()
+* Returns a vector or array or list of values obtained by applying a function to margins of an array or matrix.
+
+apply(X,Margin,Fun)
+FUN: R function ,also includes a User Defined Function ex)sum, mean, max, min, median, var..
+```{r}
+head(data)
+apply(data,2,mean) #column mean
+apply(data,1,mean) #row mean
+head(apply(data,1:2, function(x) x/2),5) #UDF
+```
+
+###lapply()
+* lapply returns a list of the same length as X, each element of which is the result of applying FUN to the corresponding element of X.
+* Used for comparisons or aggregations from different dataframes.
+```{r ,fig.width=2}
+##Install packages
+using<-function(...) {
+  libs<-unlist(list(...))
+  req<-unlist(lapply(libs,require,character.only=TRUE))
+  need<-libs[req==FALSE]
+  if(length(need)>0){ 
+    install.packages(need)
+    lapply(need,require,character.only=TRUE)
+  }
+}
+using("knitr","dplyr","kableExtra")
+
+A<- cars
+B<- women
+C<- rock
+dataset_list <- list(A,B,C)
+lapply(dataset_list,"[",,2)#extract 2nd column from multiple dataframe
+kable(lapply(dataset_list,"[",1,)) %>% #extract 1st row from multiple dataframe
+    kable_styling(bootstrap_options = c("striped", "hover")) 
+lapply(dataset_list,"[",1,2) # extract 1st row, 2nd column value
+
+second <- lapply(dataset_list,"[",,2) #mean of each 2nd column
+avg <-lapply(second,mean)
+avg
+class(avg) # "list""
+```
+
+###sapply()
+* sapply is a user-friendly version of lapply by default returning a vector or matrix if appropriate.
+```{r fig.width=2}
+#version1
+dataset_list <- list(A[,1],B[,1],C[,1])
+avg <- sapply(dataset_list, mean)
+avg 
+class(avg) #"numeric"
+
+#version2
+avg <- function(x) {  
+  ( min(x) + max(x) ) / 2}
+avg2 <- sapply(dataset_list, avg)
+avg2
+```
+
+###tapply()
+* Apply a function to each cell of a ragged array, that is to each (non-empty) group of values given by a unique combination of the levels of certain factors.
+```{r}
+#mean by group
+tapply(data$sr,rownames(data), mean)
+```
+
+

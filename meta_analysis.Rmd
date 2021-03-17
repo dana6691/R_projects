@@ -1,16 +1,19 @@
 ---
 title: "Meta-analysis"
-output: html_notebook
+output: github_document
 ---
-##R packages
+## R packages
+
+1) meta: standard methods for meta-analysis 
 2) metasens: Advanced methods to model and adjust for bias in meta-analysis
 3) metafor: general package for meta-analysis, provides methods for multilevel meta-analysis + multivariate
 4) netmeta: frequentist method for network meta=analysis
-## standard pair-wise meta-analysis
+
+## Standard pair-wise meta-analysis
 
 - assumption test: heterogeneity within each direct comparison 
 
-## network meta-analysis
+## Network meta-analysis
 
 - simultaneously compare between any pairs of interventions in the network.--> enables the *relative ranking* for a given outcome 
 - available both direct and indirect intervention comparisons
@@ -47,7 +50,7 @@ head(joy)
 - who dropped out, for which the outcome is missing, in either arm (drop.h, drop.p)
 
 
-## fixed effect and random effects meta-analysis
+## Fixed effect and random effects meta-analysis
 ```{r}
 # print results with two significant digits
 settings.meta(digits = 2) 
@@ -74,7 +77,7 @@ method to calculate a confidence interval for τ^2 and τ</br>
 --> heterogeneity statistic I2 is 54%: indicative of moderate heterogeneity
 --> its CI ranges from 21% to 74%: denoting potentially unimportant to substantial heterogeneity
 --> CI from the random effects model is wider compared with the one from the fixed effect model, but differ slightly
-## forest plot
+## Forest plot
 ```{r}
 # forest plot
 forest(m.publ, 
@@ -85,7 +88,7 @@ forest(m.publ,
 ```
 --> diamond: estimated RRs and CI do not cross the line of no effect --> haloperidol is significantly more effective than placebo
 --> cross the line of no effect: placebo might be superiod to haloperidol in a future study
-## subgroup analysis: impact of missing data
+## Subgroup analysis: impact of missing data
 ```{r}
 m.publ.sub = update(m.publ, byvar = miss, print.byvar = FALSE ) # group by 'miss' add new variable 'miss'
 m.publ.sub
@@ -101,7 +104,7 @@ forest(m.publ.sub,
 --> studies without missing data report a larger haloperidol effect compared with the studies with missing data</br>
 --> subgroup differece test test under the random effects model: missing data might have some impact on the results (p=0.03)∂
 
-## sensitivity analysis for missing binary outcomes
+## Sensitivity analysis for missing binary outcomes
 to adjust the effect estimate for this bias
 ```{r}
 mmiss.1 = metamiss (m.publ, drop.h, drop.p, method.miss = "1" ) # missing value as 1
@@ -165,7 +168,7 @@ forest(mbr, xlim = c(0.25, 4),
 --> all sensitivity analyses for missing data resulted in similar results.</br>
 --> there's benefits of using halloperidol over placebo
 
-## small-study effects
+## Small-study effects
 *small study effect: sometimes, small study shows larger or different treatment effect than larger studies</br>
 *check asymmetry using funnel plot
 ```{r}
@@ -190,7 +193,7 @@ title(main = "Contour-enhanced funnel plot")
 #summary(trimfill(m.publ))
 funnel(trimfill(m.publ), legend=TRUE) # with missing studies filled in
 title(main = "Trim-and-fill funnel plot")
-s
+
 # Limit meta-analysis
 funnel(limitmeta(m.publ))
 title(main = "Limit meta-analysis")
