@@ -1,0 +1,231 @@
+---
+title: "Growth Model"
+output: html_notebook
+---
+
+```{r}
+new7 <- read.csv(file="N:/DaheeKim/April/Reef/reef.csv", header=TRUE, sep=",")
+data1 <- new7
+head(data1)
+####################################################################################################
+library(dplyr)
+percent3 <- percent2
+this <- c(1:9)
+for(x in 1:9){
+  data1 <- mutate(data1, overX = ifelse(value> x,"Pass","fail"))
+  
+  #change Character to Factor (for counting 0 frequency)
+  data1[sapply(data1, is.character)]  <- lapply(data1[sapply(data1, is.character)],as.factor)
+  
+  #Relative Frequency table
+  
+  percent <-   data1 %>%
+    group_by(Date,Tank,overX, .drop = FALSE) %>%
+    summarise(count = n()) %>%
+    mutate(relfreq= count / sum(count)*100) 
+  
+  percent2 <-  percent %>%
+    filter(overX=="Pass") %>%
+    select(Date,Tank, relfreq)%>%
+    rename(Percent =relfreq)
+  
+  data1 <- na.omit(data1)
+  table2<- data1 %>%
+    group_by(Date,Tank) %>%
+    summarise(Average = mean(value))
+  
+  percent2 <- as.data.frame(percent2)
+  table2 <- as.data.frame(table2)
+  
+  #Add column from other dataframe
+  percent2["Average"] <- table2["Average"]
+  percent3[ , paste0("Percent", x)]<-  percent2$Percent
+  #print(head(percent2))
+}
+head(percent3)
+head(percent2)
+```
+
+
+```{r}
+#############################################################################################################
+#package easynls(nonlinear model )
+#############################################################################################################
+library(easynls)
+percent2$time <- as.numeric(percent2$Date)
+new <-cbind(percent2$time, percent2$Percent)
+new <- as.data.frame(new)
+colnames(new) <- c("time","Percent")
+# linear
+nlsfit(new, model=1)
+# quadratic
+nlsfit(new, model=2)
+# linear plateau
+nlsfit(new, model=3)
+# quadratic plateau
+nlsfit(new, model=4)
+# two linear
+#nlsfit(new, model=5, start=c(50,5,2,50))
+# exponential
+nlsfit(new, model=6, start=c(50,0.03))
+# logistic
+nlsfit(new, model=7, start=c(98.20,1.4,0.03))
+# van bertalanffy
+nlsfit(new, model=8, start=c(118,1.4,0.03))
+# brody
+nlsfit(new, model=9, start=c(118,4,0.05))
+# gompertz
+nlsfit(new, model=10, start=c(100,4,0.05))
+
+# linear
+nlsplot(new, model=1)
+# quadratic
+nlsplot(new, model=2)
+# linear plateau
+nlsplot(new, model=3)
+# quadratic plateau
+nlsplot(new, model=4)
+# two linear
+#nlsplot(new, model=5, start=c(50,5,2,50))
+# exponential
+nlsplot(new, model=6, start=c(50,0.03))
+# logistic
+#nlsplot(new, model=7, start=c(118,1.4,0.03))
+# van bertalanffy
+nlsplot(new, model=8, start=c(118,1.4,0.03))
+# brody
+nlsplot(new, model=9, start=c(118,4,0.05))
+# gompertz
+nlsplot(new, model=10, start=c(100,4,0.05))
+```
+
+```{r}
+#############################################################################################################
+# Nonlinear Regression for Gompertz function
+#############################################################################################################
+fit.gompertz <- function(data, time){
+  d <- data.frame(y=data, t=time)
+  
+  # Must have at least 3 datapoints at different times
+  if (length(unique(d$t)) < 3) stop("too few data points to fit curve")
+  
+  # Pick starting values ###
+  i <- which.max(diff(d$y))
+  starting.values <- c(a=max(d$y), 
+                       mu=max(diff(d$y))/(d[i+1,"t"]-d[i, "t"]), 
+                       lambda=i)
+  print("Starting Values for Optimization: ")
+  print(starting.values)
+  
+  formula.gompertz <- "y~a*exp(-exp(mu*exp(1)/a*(lambda-t)+1))"
+  nls(formula.gompertz, d, starting.values)
+}
+percent3 = percent2[percent2$Percent != 0, ]
+fit <- fit.gompertz(percent3$Percent, percent3$time)
+
+reg.Gompertz= nls("Percent~A*exp(-exp(mu*exp(1)/A*(lambda-time)+1))", percent3, start=list(A=100,mu=7.185374,lambda=21.000000))
+plot(Percent~ time,percent2)
+A<-coef(reg.Gompertz)[1]
+mu<-coef(reg.Gompertz)[2]
+lambda<-coef(reg.Gompertz)[3]
+lines(time<-percent2$time,A*exp(-exp(mu*exp(1)/A*(lambda-time)+1)),col='red')
+```
+
+```{r}
+#############################################################################################################
+#Nonlinear Regression for (Logistic) function
+#############################################################################################################
+#install.packages("vignettes")
+library(vignettes)
+library(nlme)
+#find the parameters for the equation
+SS<-getInitial(Percent~SSlogis(time,alpha,xmid,scale),percent2)
+fm1 <- nls(Percent ~ SSlogis(time, Asym, xmid, scal), data = percent2)
+summary(fm1)
+reg.Logistic= nls(Percent~(Asym)/(1+exp((xmid-time)/scal)),data=percent2, start=list(Asym=98.1750,xmid=24.3177,scal=4.9204))
+plot(Percent~ time,percent2)
+lines(percent2$time, predict(reg.Logistic),col="red")
+```
+
+```{r}
+#############################################################################################################
+# Nonlinear Regression for (Richards) function
+#############################################################################################################
+#install.packages("NRAIA", repos="http://R-Forge.R-project.org")
+library(NRAIA)
+reg.Richards <- nls(Percent ~ SSRichards(time, Asym, xmid, scal, lpow), percent2)
+summary(reg.Richards <- nls(Percent ~ SSRichards(time, Asym, xmid, scal, lpow), percent2))
+reg.Richards=  nls(Percent ~ A*(1+exp((xmid-time)/scal))^(-exp(-lpow)),data=percent2,start=list(A=99.4454,xmid=6.2748,scal=7.0667,lpow=-2.1747))
+```
+
+```{r}
+#############################################################################################################
+# Nonlinear Regression for (van bertalanffy) function
+#############################################################################################################
+reg.van=  nls(Percent ~ a*(1-b*(exp(-c*time)))^3,data=percent2,start=list(a=103.6684,b=2.3165,c=0.083))
+#compare graph
+AIC(reg.Logistic, reg.Richards,reg.Gompertz,reg.van)
+```
+
+
+```{r}
+#plot1
+plot(percent2, ylab="Growth Model")
+lines(percent2$time, predict(reg.Gompertz),col="red",lty=2, lwd=2)
+lines(percent2$time, predict(reg.Logistic),col="blue",lty=2, lwd=2)
+lines(percent2$time, predict(reg.Richards),col="green",lty=2, lwd=2)
+
+#plot2
+aa <- cbind(percent2$time,predict(reg.Gompertz), predict(reg.Logistic), predict(reg.Richards) )
+aa <- as.data.frame(aa)
+colnames(aa) <-c("date","Gompertz","Logistic","Richards")
+library(reshape2)
+aa2 <- melt(aa, id.vars=c("date"))
+
+ggplot(percent2,aes(time,Percent)) + 
+  geom_point(colour="black",size=4.5)+
+  geom_point(colour = "grey",size=4,alpha=0.9)  +
+  geom_line(data=aa2, aes(date,value,color=variable),lty=1, lwd=1.1)+
+  scale_color_discrete(name = "Model", labels = c("Gompertz", "Logistic","Richards"))+
+  labs(x ="Tenure", y = "Percent of shrimp over 9g") + 
+  geom_vline(xintercept = 77, linetype="dotted", color = "black", size=1) + 
+  geom_hline(yintercept = 100, linetype="dotted", color = "black", size=1) + 
+  theme(legend.position = c(0.9, 0.2))+
+  scale_x_continuous(limits=c(0,95), breaks=seq(0,95,5)) +
+  text(x=108,y=32.440078, adf=0, label="(9, 32.44)",col=2)
+```
+
+```{r}
+#############################################################################################################  
+#table 
+library(knitr)
+kable(new2, format = "rst")
+percent2$time
+percent22 <- unique(percent2$Date)
+#############################################################################################################
+#1 = "y~a+b*x" linear
+#2 = "y~a+b*x+c*x^2" quadratic
+#3 = "y ~ a + b * (x - c) * (x <= c)" linear plateau
+#4 = "y ~ (a + b * x + c * I(x^2)) * (x <= -0.5 * b/c) + (a + I(-b^2/(4 * c))) * (x > -0.5 * b/c)" quadratic plateau
+#5 = "ifelse(x>=d,(a-c*d)+(b+c)*x, a+b*x)" two linear
+#6 = "y~a*exp(b*x)" exponential
+#7 = "y~a*(1+b*(exp(-c*x)))^-1" logistic
+#8 = "y~a*(1-b*(exp(-c*x)))^3" van bertalanffy
+#9 = "y~a*(1-b*(exp(-c*x)))" brody
+#10 = "y~a*exp(-b*exp(-c*x)" gompertz
+#11 = "y~(a*x^b)*exp(-c*x)" lactation curve
+#12 = "y ~ a + b * (1 - exp(-c * x))" ruminal degradation curve
+#13 = "y~(a/(1+exp(2-4*c*(x-e))))+(b/(1+exp(2-4*d*(x-e))))" logistic bi-compartmental
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```

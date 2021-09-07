@@ -1,0 +1,84 @@
+---
+title: "Churn Prediction"
+author:DaheeKim
+
+output: html_notebook
+---
+
+In an increasing fragmented market, creating and maintaining our loyal customer is an essntial problem. Based on the customer behavior, transanction, we will predict customer segments and create model to find the pattern.
+
+#Load data from github
+```{r}
+library(readr)
+test = "https://raw.githubusercontent.com/dana6691/R_project/master/churnTrain.csv"
+train = "https://raw.githubusercontent.com/dana6691/R_project/master/churnTrain.csv"
+test<-read_csv(url(test))
+train<-read_csv(url(train))
+```
+
+```{r}
+train$Area_Code <- as.character(train$Area_Code)
+train$No_CS_Calls <- as.character(train$No_CS_Calls)
+#Change logic to numerical  
+train$Churn[train$Churn == "FALSE"] <- 0
+train$Churn[train$Churn == "TRUE"] <- 1
+library(dplyr)
+str(train)
+```
+- Categorical features: State, International_Plan, Voice_Mail_Plan,  Area_Code,No_CS_Calls
+
+- Numerical features:Account_Length,No_Vmail_Messages,Total_Day_minutes,Total_Day_Calls,Total_Day_charge,Total_Eve_Minutes,Total_Eve_Calls,Total_Eve_Charge,Total_Night_Minutes,Total_Night_Calls,Total_Night_Charge,Total_Intl_Minutes,Total_Intl_Charge,Churn
+```{r echo=FALSE}
+library(skimr)
+skim(train)
+```
+
+#Categorical Features Plot
+```{r}
+library(dplyr)
+mytable <- xtabs(~ State+Churn, data=train)
+state <- as.data.frame(prop.table(mytable, 1)) # row proportions
+mytable <- xtabs(~ International_Plan+Churn, data=train)
+International_Plan <- as.data.frame(prop.table(mytable, 1)) # row proportions
+mytable <- xtabs(~ Voice_Mail_Plan+Churn, data=train)
+Voice_Mail_Plan <- as.data.frame(prop.table(mytable, 1)) # row proportions
+mytable <- xtabs(~ Area_Code+Churn, data=train)
+Area_Code <- as.data.frame(prop.table(mytable, 1)) # row proportions
+mytable <- xtabs(~ No_CS_Calls+Churn, data=train)
+No_CS_Calls <- as.data.frame(prop.table(mytable, 1)) # row proportions
+table(train$Churn, train$State)
+
+library(ggplot2)
+ggplot(data=subset(state, Churn==0),aes(x=State, y=Freq,fill=State))+
+  geom_bar(position="stack", stat="identity") + ylab("Retention Rate") + theme(legend.position = "none")
+a2 <-ggplot(data=subset(International_Plan, Churn==0),aes(x=International_Plan, y=Freq,fill=International_Plan))+
+  geom_bar(position="stack", stat="identity") + ylab("Retention Rate")+ theme(legend.position = "none")
+a3 <-ggplot(data=subset(Voice_Mail_Plan, Churn==0),aes(x=Voice_Mail_Plan, y=Freq,fill=Voice_Mail_Plan))+
+  geom_bar(position="stack", stat="identity") + ylab("Retention Rate")+ theme(legend.position = "none")
+a4 <-ggplot(data=subset(Area_Code, Churn==0),aes(x=Area_Code, y=Freq,fill=Area_Code))+
+  geom_bar(position="stack", stat="identity") + ylab("Retention Rate")+ theme(legend.position = "none")
+a5 <-ggplot(data=subset(No_CS_Calls, Churn==0),aes(x=No_CS_Calls, y=Freq,fill=No_CS_Calls))+
+  geom_bar(position="stack", stat="identity") + ylab("Retention Rate")+ theme(legend.position = "none")
+library(ggpubr)
+ggarrange(a2,a3,a4,a5,ncol =2, nrow = 2)
+
+```
+
+
+#Categorical Features Plot
+```{r}
+mytable <- xtabs(~ Account_Length+Churn, data=train)
+Account_Length <- as.data.frame(prop.table(mytable, 1)) # row proportions
+subset(Account_Length, Churn==0)
+Account_Length$Account_Length <- as.numeric(Account_Length$Account_Length)
+ggplot()+
+  geom_line(data=subset(Account_Length, Churn==0),aes(x=Account_Length, y=Freq,group=1)) + ylab("Retention Rate") + theme(legend.position = "none") + scale_x_continuous(name = "Account Length", breaks=seq(0,max(Account_Length$Account_Length),10))
+mytable <- xtabs(~ Account_Length+Churn, data=train)
+Account_Length <- as.data.frame(prop.table(mytable, 1)) # row proportions
+ggplot()+
+  geom_line(data=subset(No_Vmail_Messages, Churn==0),aes(x=Account_Length, y=Freq,group=1)) + ylab("Retention Rate") + theme(legend.position = "none") + scale_x_continuous(name = "Account Length", breaks=seq(0,max(Account_Length$Account_Length),10))
+ggplot()+
+  geom_line(data=subset(Account_Length, Churn==0),aes(x=Account_Length, y=Freq,group=1)) + ylab("Retention Rate") + theme(legend.position = "none") + scale_x_continuous(name = "Account Length", breaks=seq(0,max(Account_Length$Account_Length),10))
+
+```
+Account_Length,No_Vmail_Messages,Total_Day_minutes,Total_Day_Calls,Total_Day_charge,Total_Eve_Minutes,Total_Eve_Calls,Total_Eve_Charge,Total_Night_Minutes,Total_Night_Calls,Total_Night_Charge,Total_Intl_Minutes,Total_Intl_Charge,Churn

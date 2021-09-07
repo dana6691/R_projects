@@ -1,0 +1,61 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+**Multivariate GAMs(Generalized Additive Model)**
+
+generalized linear model in which the linear response variable depends linearly on unknown smooth functions of some predictor variables, and interest focuses on inference about these smooth functions.
+
+```{r}
+library(mgcv)
+library(gamair)
+
+# Examine the data
+data(mpg)
+head(mpg)
+str(mpg)
+
+# Fit the model with  sum of smooth functions and categorical variables
+mod_city <-  gam(city.mpg ~ s(weight) + s(length) + s(price) + fuel + drive + style, 
+                 data = mpg, method = "REML")
+
+# Plot the model
+plot(mod_city, pages = 1)
+# Plot the results
+plot(mod_city, residuals = TRUE, pch = 1, pages = 1)
+```
+
+## 50 basis functions and a smoothing parameter of 0.0001.
+```{r}
+# Fit the GAM
+gam_mod_sk <- gam(accel ~ s(times,k=50), sp=0.0001, data=mcycle)
+?gam
+gam_mod_sk <- gam(city.mpg ~ s(weight,k=50) + s(length,k=50) + s(price,k=50) + fuel + drive + style, sp=0.0001, 
+                 data = mpg)
+
+# Visualize the model
+plot(gam_mod_sk, residuals = TRUE, pch = 1)
+```
+```
+
+```{r}
+gam_mod_sk <- gam(accel ~ s(times,k=50), sp=0.0001, data=mcycle)
+# Visualize the model
+plot(gam_mod_sk, residuals = TRUE, pch = 1)
+```
+
+```{r}
+
+```
+
+# Category-level smooths for different auto types
+```{r}
+# Fit the model
+mod_city3 <- gam(city.mpg ~ s(weight,by=drive) + s(length,by=drive) + s(price,by=drive) +drive,
+                 data = mpg, method = "REML")
+
+# Plot the model
+plot(mod_city3, pages = 1)
+```
+

@@ -9,7 +9,7 @@ output:
 
 ---
 
-##pre-processing
+## pre-processing
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 #Needed <- c("tm", "SnowballCC", "RColorBrewer", "ggplot2", "wordcloud", "biclust", "cluster", "igraph", "fpc")
 #install.packages(Needed, dependencies = TRUE)
@@ -18,10 +18,10 @@ require(wordcloud)
 require(RColorBrewer)
 require(wordcloud2)
 require(readxl)
-filePath = read_excel("C:/Users/daheekim/OneDrive - Ralco Nutrition, Inc/DaheeKim/Rfile/Rpubs/wordcloud/q44.xlsx")
-write.table(filePath, file = "C:/Users/daheekim/OneDrive - Ralco Nutrition, Inc/DaheeKim/Rfile/Rpubs/wordcloud/q44.txt", sep = "\t",row.names = TRUE, col.names = NA)
+filePath = read_excel("C:/Users/daheekim/OneDrive - Ralco Nutrition, Inc/Documents/VScode_project/R_project/wordcloud/q44.xlsx")
+write.table(filePath, file = "C:/Users/daheekim/OneDrive - Ralco Nutrition, Inc/Documents/VScode_project/R_project/wordcloud/q44.txt", sep = "\t",row.names = TRUE, col.names = NA)
 # Load text 
-text <- readLines("C:/Users/daheekim/OneDrive - Ralco Nutrition, Inc/DaheeKim/Rfile/Rpubs/wordcloud/q44.txt")
+text <- readLines("C:/Users/daheekim/OneDrive - Ralco Nutrition, Inc/Documents/VScode_project/R_project/wordcloud/q44.txt")
 ```
 
 ```{r}
@@ -57,7 +57,7 @@ d <- data.frame(word = names(word),freq=word)
 </center>
 
 
-##Plot I
+## Plot I
 ```{r}
 # Plot the word cloud
 set.seed(1234)
@@ -67,12 +67,12 @@ wordcloud(d$word,d$freq,
             use.r.layout=FALSE,  colors= brewer.pal(8, "RdBu"))
 ```
 
-##Plot II
+## Plot II
 ```{r}
 wordcloud2(data=d, size = 0.7, shape = 'pentagon')
 ```
 
-##Words frequency table
+## Words frequency table
 ```{r}
 # Show the top10 words and their frequency
 head(d, 10)
@@ -83,11 +83,33 @@ barplot(d[1:10,]$freq, las = 2,
 ```
 
 
-##Associated words
+## Associated words
 ```{r}
 #association between frequent terms
 findFreqTerms(tdm, lowfreq = 50)
 asso <- findAssocs(tdm, terms = "like", corlimit = 0.2)
 head(asso)
 barplot(asso$like, main="like Distribution", horiz=FALSE,las=2)
+```
+
+## Sentimental Analysis
+```{r}
+library(syuzhet)
+library(readr)
+library(ggplot2)
+text <- read_csv("C:/Users/daheekim/OneDrive - Ralco Nutrition, Inc/Documents/VScode_project/R_project/wordcloud/q44.csv")
+text <- as.character(text)
+d<-get_nrc_sentiment(text)
+td<-data.frame(t(d))
+#The function rowSums computes column sums across rows for each level of a grouping variable.
+
+#Transformation and cleaning
+names(td)[1] <- 'count'
+td_new <- cbind('sentiment' = rownames(td), td)
+rownames(td_new) <- NULL
+td_new2<-td_new[1:8,]
+td_new2
+
+#Visualisation
+qplot(sentiment, data=td_new2, weight=count, geom='bar',fill=sentiment)+ggtitle('Q44 sentiments')
 ```

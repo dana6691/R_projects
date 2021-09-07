@@ -1,0 +1,161 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+The dataset is loosely based on the the shopping details for customers of few cities. The values vary profoundly which makes it simple & basic to re-produce any kind of visualization based on it. The data has been populated randomly and holds no such relation to any real systems data or confidential data. You will find it easy to play around this data when you are relatively new to data analysis and are building basic data samples, models and visualizations using a code like Python or a tool like Power BI. This dataset has 2 files - the first file has the entire data for customer shopping while the other file has the indexed data based on a matrix according to the cities.
+```{r eval=FALSE}
+library(readxl)
+data <- read_excel("Shopping_CustomerData.xlsx")
+names(data)
+library(tidyverse)
+library(ggplot2)
+library(dlookr)
+```
+
+```{r }
+data %>%
+  describe() %>%
+  select(variable, skewness, mean,sd, p25, p50, p75) %>% 
+  filter(!is.na(skewness)) %>% 
+  arrange(desc(abs(skewness)))
+
+data %>%
+  group_by(CustomerCity,CustomerGender) %>% 
+  describe(AnnualIncome, SpendingScore,CreditScore,CustomerAge,CustomerID) 
+
+```
+```{r}
+normality(data)
+#non normal distribution
+library(dplyr)
+
+data %>%
+  normality() %>%
+  filter(p_value <= 0.01) %>% 
+  arrange(abs(p_value))
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+ggplot(data = data) +
+  geom_bar(mapping = aes(x = CustomerAge))
+
+data %>% 
+  count(CustomerAge)
+```
+
+```{r}
+ggplot(data = data, mapping = aes(x = CustomerAge)) +
+  geom_freqpoly(mapping = aes(colour = CustomerGender), binwidth = 5)
+```
+
+```{r}
+ggplot(data = data, mapping = aes(y = CustomerAge, x = CustomerGender)) +
+geom_boxplot()
+ggplot(data = data) +
+  geom_boxplot(mapping = aes(x = reorder(CustomerCity, SpendingScore, FUN = median), y = SpendingScore)) 
+  
+```
+
+```{r}
+names(data)
+ggplot(data = data) +
+  geom_count(mapping = aes(x = CustomerAge, y = CustomerCity))
+```
+Size of the circle displays how many observations occurred at each category. There 's no strong correlation between x and y.
+```{r}
+data %>% 
+  count(SpendingScore, CreditScore) %>%  
+  ggplot(mapping = aes(x = SpendingScore, y = CreditScore)) +
+    geom_tile(mapping = aes(fill = n))
+```
+
+```{r}
+ggplot(data = data) +
+  geom_point(mapping = aes(x = CustomerAge, y = CreditScore))
+```
+
+```{r}
+#install.packages('DataExplorer) 
+library(DataExplorer)
+plot_str(data)
+```
+```{r}
+plot_missing(data)
+```
+
+```{r}
+plot_histogram(data)
+```
+
+```{r}
+plot_density(data)
+```
+#Correlation Analysis
+```{r}
+plot_correlation(data, type = 'continuous','Review.Date')
+```
+#Categorical Data 
+```{r}
+plot_bar(data)
+library(ggplot2)
+ggplot(data=data)+
+   geom_bar(mapping=aes(x=CustomerCity, fill=CustomerGender), position = "fill")
+ggplot(data=data)+
+   geom_bar(mapping=aes(x=CustomerCity, fill=CustomerGender), position = "dodge")
+ggplot(data=data)+
+   geom_bar(mapping=aes(x=CustomerCity, fill=CustomerGender), alpha = 1/5, position = "identity")
+ggplot(data=data)+
+   geom_point(mapping=aes(x=AnnualIncome, y=CreditScore), position = "jitter") #add small amount of random noise to each point
+bar <- ggplot(data = data) + 
+  geom_bar(
+    mapping = aes(x = CustomerCity, fill = CustomerCity), 
+    show.legend = TRUE,
+    width = 1
+  ) + 
+  theme(aspect.ratio = 1) +
+  labs(x = NULL, y = NULL)
+
+bar + coord_flip()
+bar + coord_polar()
+```
+
+```{r}
+create_report(data)
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
