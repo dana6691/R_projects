@@ -4,6 +4,8 @@
   - [Seaflow](Seaflow): supervised machine learning (Random Forests, Decision Trees, SVM)
   - [Wordcloud](Wordcloud): creating wordcloud of survey data and sentimental analysis.
   - [table_display](table_display):introduce ways to display tables using *knitr::kable*, *DT::datatable*, *tibble::as_tibble*, *formattable*, *tidyr*
+  - [Apply_family](Apply_family): aggregate the data using *apply(), lapply() , sapply(), vapply(), mapply(), rapply(), and tapply()* 
+  - [Meta_analysis](Meta_analysis): performed meta-analysis using *meta*, *metafor*, and *metasens*  
   - [ANOVA](ANOVA): Analayisis of Variance from assumption testing to the ad-hoc analysis.
   - [Experimental_design](Experimental_design): finding appropriate sample size of the trial and assigning treatment groups randomly, library *randomizr* and *pwr* used.  
   - [Visualization](Visualization): visualize the data using *ggplots*, *plotly*, and *circlize*. Combined multiple graphs into a page with *gridExtra*
