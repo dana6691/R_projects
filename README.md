@@ -1,5 +1,5 @@
 # R_project
-  - [EDA](../R_projects/EDA): exploratory data analysis using library *DataExplorer*
+  - [EDA](R_projects/blob/master/EDA): exploratory data analysis using library *DataExplorer*
   - [ggpubr](../R_projects/ggpubr): draw multiple plots in one page using library *grid* and *ggpubr*
   - [Seaflow](../R_projects/Seaflow): supervised machine learning (Random Forests, Decision Trees, SVM)
   - [Wordcloud](../R_projects/Wordcloud): creating wordcloud of survey data and sentimental analysis.
