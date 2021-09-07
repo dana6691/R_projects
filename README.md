@@ -8,4 +8,5 @@
   - [Meta_analysis](Meta_analysis): performed meta-analysis using *meta*, *metafor*, and *metasens*  
   - [ANOVA](ANOVA): Analayisis of Variance from assumption testing to the ad-hoc analysis.
   - [Experimental_design](Experimental_design): finding appropriate sample size of the trial and assigning treatment groups randomly, library *randomizr* and *pwr* used.  
+  - [Outliers](Outliers): detect outliers; quantile, percentiles, Hampel filter, Cook's D    
   - [Visualization](Visualization): visualize the data using *ggplots*, *plotly*, and *circlize*. Combined multiple graphs into a page with *gridExtra*
