@@ -1,6 +1,6 @@
 # R_project
   - [EDA](EDA): exploratory data analysis using library *DataExplorer*
-  - [ggpubr package](ggpubr): draw multiple plots in one page using library *grid* and *ggpubr*
+  - <a href="https://github.com/dana6691/R_projects/blob/master/ggpubr%20package/ggpubr%20package.Rmd">ggpubr</a> : draw multiple plots in one page using library *grid* and *ggpubr*
   - [Seaflow](Seaflow): supervised machine learning (Random Forests, Decision Trees, SVM)
   - [Wordcloud](Wordcloud): creating wordcloud of survey data and sentimental analysis.
   - [table_display](table_display):introduce ways to display tables using *knitr::kable*, *DT::datatable*, *tibble::as_tibble*, *formattable*, *tidyr*
