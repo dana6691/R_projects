@@ -1,4 +1,6 @@
-#three way ANOVA
+##################################################################
+# three-way ANOVA test
+##################################################################
 data1 <-na.omit(data1)
 str(data1)
 data1$Tank <- as.factor(data1$Tank)
@@ -18,8 +20,9 @@ with(data1, {
 par(op)
 # The weight of RTB4 and 2 seems to lighter than RTB1 as compared to Location 1,2,3. 
 # There may be an interaction between 
-
-#3way ANOVA
+##################################################################
+# three-way ANOVA test (2)
+##################################################################
 fm <- aov(value ~ Date*Tank*variable, data = data1)
 fm  
 fm <- aov(Distance ~ ABS + Tire + Tread + ABS:Tire + ABS:Tread + Tire:Tread
