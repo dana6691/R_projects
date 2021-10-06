@@ -1,13 +1,17 @@
 ---
-title: "Easy EDA with DataExplorer package"
+title: "Easy EDA with *DataExplorer* package"
 author: Dahee Kim
 date: January 5, 2020
 output:
-  html_document:
-    theme: lumen
+  github_document:
     toc: true
-    toc_float: true
-    number_sections: true
+    toc_depth: 3
+# output:
+#   html_document:
+#     theme: lumen
+#     toc: true
+#     toc_float: true
+#     number_sections: true
 ---
 
 ```{r include=FALSE}
@@ -21,7 +25,7 @@ dt <- as.data.frame(dt)
 str(dt)
 ```
 
-#Easy Data Profiling Report
+## Easy Data Profiling Report
 To get a report for the insurance dataset with response variable bmi, `create_report(dataname)`
 ```{r}
 #create_report(dt, y = "bmi")
@@ -43,58 +47,70 @@ To get a report for the insurance dataset with response variable bmi, `create_re
     - Boxplot (by bmi)
     - Scatterplot (by bmi)
     
-#Structure of data
+## Structure of data
 ```{r}
 data_list <- list(dt)
 plot_str(data_list)
 ```
 
-#Variable information
+## Variable information
 ```{r}
 plot_intro(dt)
 ```
 
-#Missing Data by features
+## Missing Data by features
 ```{r}
 plot_missing(dt)
 ```
 
-#Continuous Variable
-##Histogram for Continuous Variables
+## Continuous Variable
+### Histogram for Continuous Variables
 ```{r}
 plot_histogram(dt)
 ```
 
-##Scatterplot `bmi` with all other continuous features
+### Scatterplot `bmi` with all other continuous features
 ```{r}
 plot_scatterplot(split_columns(dt)$continuous, by = "bmi")
 ```
 
-##QQ plot of all continuous variables
+### QQ plot of all continuous variables
 ```{r}
 plot_qq(dt)
-plot_qq(dt, by = "bmi")
+plot_qq(dt, by = "bmi",theme_config = list("aspect.ratio" = 1))
 ```
 
-#Categorical Variable
-##Categorical Data - Frequency Table
+### Density estimates for each continuous features
+```{r}
+plot_density(dt,theme_config = list(
+  "aspect.ratio" = 1
+))
+```
+
+## Categorical Variable
+### Categorical Data - Frequency Table
 ```{r}
 plot_bar(dt)
 ```
 
-##Boxplot by Categorical Variables
+### Boxplot by Categorical Variables
 ```{r}
 plot_boxplot(dt, by= 'sex',  ncol = 2)
 plot_boxplot(dt, by= 'smoker',  ncol = 2)
 plot_boxplot(dt, by= 'region',  ncol = 2)
 ```
 
-#Correlation Analysis
+## Correlation Analysis
 ```{r}
 plot_correlation(dt)
 ```
 
-#Feature Engineering
+## Visualize principle component analysis
+```{r}
+plot_prcomp(dt)
+```
+
+## Feature Engineering
 ```{r}
 #Dummify diamonds dataset
 head(dummify(dt))
@@ -102,7 +118,7 @@ head(dummify(dt))
 #Update columns
 head(update_columns(dt, c("sex", "smoker","region"), as.factor))
 
-## Drop columns
+#Drop columns
 head(drop_columns(dt, 1:2),5)
 ```
 
