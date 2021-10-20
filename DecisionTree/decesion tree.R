@@ -1,6 +1,5 @@
 #------------------------------------------------------------------#
 #decision tree
-#-------------https://www.statmethods.net/advstats/cart.html
 #------------------------------------------------------------------#
 # Classification Tree with rpart
 library(rpart)
