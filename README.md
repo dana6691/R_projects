@@ -9,4 +9,4 @@
   - [ANOVA](ANOVA): Analayisis of Variance from assumption testing to the ad-hoc analysis.
   - [Experimental_design](Experimental_design): finding appropriate sample size of the trial and assigning treatment groups randomly, library *randomizr* and *pwr* used.  
   - [Outliers](Outliers): detect outliers; quantile, percentiles, Hampel filter, Cook's D    
-  - [Visualization](Visualization): visualize the data using *ggplots*, *plotly*, and *circlize*. Combined multiple graphs into a page with *gridExtra*
+  - [Visualization](Visualization): visualize various types of plots(scatter, bar, boxplot, violin, dendrogram, chord-diagram, radar, lollipop, density). Combined multiple graphs into one with *grid*, *gridExtra*, *ggpubr*, ,and *ggplot2*
