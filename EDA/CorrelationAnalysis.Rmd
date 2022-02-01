@@ -1,76 +1,38 @@
-Correlation Analysis
-================
+---
+title: "Correlation Analysis"
+output: github_document
+---
 
-### Correlation between 2 variables
-
-``` r
+###  Correlation between 2 variables
+```{r}
 # Pearson correlation between 2 variables
 library(readxl)
 data <- read_excel("~/VScode_project/R_projects/Data/TSCW200102.xlsx")
 data <- data[, c(10,13,14,18,19)]
 cor(data$ADG, data$FCR) # “pearson”
-```
-
-    ## [1] 0.2510967
-
-``` r
 cor(data$ADG, data$FCR, method = "spearman")
-```
-
-    ## [1] -0.6813481
-
-``` r
 cor(data$ADG, data$FCR, method = "kendall")
 ```
-
-    ## [1] -0.6550083
-
-  - **Pearson correlation** is often used for quantitative continuous
-    variables that have a linear relationship
-  - **Spearman correlation** which is actually similar to Pearson but
-    based on the ranked values for each variable rather than on the raw
-    data, is often used to evaluate relationships involving qualitative
-    ordinal variables or quantitative variables if the link is partially
-    linear
-  - **Kendall** which is computed from the number of concordant and
-    discordant pairs is often used for qualitative ordinal variables
+- **Pearson correlation** is often used for quantitative continuous variables that have a linear relationship
+- **Spearman correlation** which is actually similar to Pearson but based on the ranked values for each variable rather than on the raw data, is often used to evaluate relationships involving qualitative ordinal variables or quantitative variables if the link is partially linear
+- **Kendall** which is computed from the number of concordant and discordant pairs is often used for qualitative ordinal variables
 
 Hypothesis
 
-  - H0: ρ=0 (there is no linear relationship between the two variables)
-  - H1: ρ≠0 (there is a linear relationship between the two variables)
+- H0: ρ=0 (there is no linear relationship between the two variables)
+- H1: ρ≠0 (there is a linear relationship between the two variables)
 
 ### Correlation for all variables
-
-``` r
+```{r}
 library(GGally)
-```
-
-    ## Loading required package: ggplot2
-
-    ## Registered S3 method overwritten by 'GGally':
-    ##   method from   
-    ##   +.gg   ggplot2
-
-``` r
 ggpairs(data)
-```
-
-![](CorrelationAnalysis_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
-
-``` r
 #plot(data)
 ```
 
-### 1\. Pearson correlation test Correlogram
 
-``` r
+### 1. Pearson correlation test Correlogram
+```{r fig.height=6, fig.width=6}
 library(corrplot)
-```
-
-    ## corrplot 0.84 loaded
-
-``` r
 cor.mtest <- function(mat, ...) {
   mat <- as.matrix(mat)
   n <- ncol(mat)
@@ -93,83 +55,56 @@ corrplot(M1,  type="upper", order="hclust", # addCoef.col = "black",
          p.mat = p.mat, sig.level = 0.05)
 ```
 
-![](CorrelationAnalysis_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
-
 #### Method 2 - with p-value
+- method: number, circle, square, ellipse, color, pie
+- type: full, lower, upper
+- addCoef.col: color of correlation coefficient
+- insig: pch, p-value, black, n
+- tl.col: variable name color
+- tl.pos: position of text labels. lt, ld, td, d, n
 
-  - method: number, circle, square, ellipse, color, pie
-  - type: full, lower, upper
-  - addCoef.col: color of correlation coefficient
-  - insig: pch, p-value, black, n
-  - tl.col: variable name color
-  - tl.pos: position of text labels. lt, ld, td, d, n
-
-<!-- end list -->
-
-``` r
+```{r}
 library(corrplot)
 library(Hmisc)
-```
-
-    ## Loading required package: lattice
-
-    ## Loading required package: survival
-
-    ## Loading required package: Formula
-
-    ## 
-    ## Attaching package: 'Hmisc'
-
-    ## The following objects are masked from 'package:base':
-    ## 
-    ##     format.pval, units
-
-``` r
 res <- rcorr(as.matrix(data), type = "pearson") # spearman, pearson
 corrplot(res$r, type="upper", method="circle",p.mat = res$P, sig.level = 0.05,
          tl.col = "black",addCoef.col = 'grey50')
 ```
 
-![](CorrelationAnalysis_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
-
 #### Method 3 - without p-value
-
-``` r
+```{r}
 # pearson, spearman, kendall
 M <- cor(data, method="pearson", use="pairwise.complete.obs")
 corrplot(M, type = "upper", tl.col = "black",addCoef.col = 'grey50')
 ```
 
-![](CorrelationAnalysis_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
-
 #### Method 4
-
-![](CorrelationAnalysis_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+```{r echo=FALSE, fig.height=4, fig.width=4, message=FALSE, warning=FALSE, paged.print=FALSE}
+library(reshape2)
+library(ggpubr)
+dtmelt<- melt(data,measure = c("ADG", "FCR"))
+ggscatter(dtmelt, x = "Survival", y = "value", color="variable",palette = c("#FC4E07", "palegreen4","#E7B800") ,
+          add = "reg.line", conf.int = TRUE, 
+          cor.coef = TRUE, cor.method = "pearson",
+          xlab = "FG", ylab = "", title="MGR/CF vs F:G") + 
+          facet_grid(variable~., scales = "free")+  
+          theme(legend.position = "none")
+```
 
 #### Method 5
-
-``` r
+```{r fig.height=4, fig.width=4, message=FALSE, warning=FALSE, paged.print=FALSE}
 library("PerformanceAnalytics")
 chart.Correlation(data, histogram=TRUE, pch=19)
 ```
 
-![](CorrelationAnalysis_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
-
 #### Method 6
-
-``` r
+```{r fig.height=4, fig.width=4, message=FALSE, warning=FALSE, paged.print=FALSE}
 plot(data)
 ```
 
-![](CorrelationAnalysis_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
-
 ### 2.Spearman’s rho correlation test
-
-statistic is also used to estimate a rank-based measure of association.
-This test may be used if the data do not come from a bivariate normal
-distribution.
-
-``` r
+statistic is also used to estimate a rank-based measure of association. This test may be used if the data do not come from a bivariate normal distribution.
+```{r fig.height=6, fig.width=6, warning=FALSE}
 library(corrplot)
 M1 <- cor(data)
 cor.mtest <- function(mat, ...) {
@@ -194,15 +129,9 @@ corrplot(M1,  type="upper", order="hclust", # addCoef.col = "black",
          p.mat = p.mat, sig.level = 0.05)
 ```
 
-![](CorrelationAnalysis_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
-
-### 3.Kendall’s tau correlation test
-
-used to estimate a rank-based measure of association. This test may be
-used if the data do not necessarily come from a bivariate normal
-distribution.
-
-``` r
+### 3.Kendall's tau correlation test
+used to estimate a rank-based measure of association. This test may be used if the data do not necessarily come from a bivariate normal distribution.
+```{r fig.height=6, fig.width=6}
 cor.mtest <- function(mat, ...) {
   mat <- as.matrix(mat)
   n <- ncol(mat)
@@ -225,9 +154,7 @@ corrplot(M1,  type="upper", order="hclust", addCoef.col = "black",
          p.mat = p.mat, sig.level = 0.05)
 ```
 
-![](CorrelationAnalysis_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
-
-``` r
+```{r fig.height=6, fig.width=6, message=FALSE, warning=FALSE}
 library(rstatix)
 cor.mat <- 
   cor_mat(
@@ -240,20 +167,15 @@ cor.mat %>%
   cor_reorder() %>%
   pull_upper_triangle() %>%
   cor_plot(label = TRUE)
-```
 
-![](CorrelationAnalysis_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
-
-``` r
 # cor.mat %>% cor_get_pval() # Significance levels 
 # cor.mat %>% cor_gather() # Gather/collapse correlation matrix into long format
 ```
 
 ### Heatmap
-
-``` r
+```{r}
 M <- cor(data)
 heatmap(M)
 ```
 
-![](CorrelationAnalysis_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+
