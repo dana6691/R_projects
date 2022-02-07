@@ -132,7 +132,7 @@ b<- ggplot(data, aes(BDNF_N, ITSN1_N)) +
 grid.arrange(a,b, ncol=2,nrow=1)
 ```
 
-![](visualization_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
+![](typesOfVisualization_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
 
 ``` r
 ggplot(data, aes(ELK_N, ERK_N)) + 
@@ -142,7 +142,7 @@ ggplot(data, aes(ELK_N, ERK_N)) +
   facet_wrap(~class)
 ```
 
-![](visualization_files/figure-gfm/unnamed-chunk-2-2.png)<!-- -->
+![](typesOfVisualization_files/figure-gfm/unnamed-chunk-2-2.png)<!-- -->
 
 ## Correlation Matrix - first 10 protein
 
@@ -177,7 +177,7 @@ p.mat <- cor.mtest(mtcars)
 corrplot(M1,  type="upper", order="hclust",tl.col="black", tl.srt=45, p.mat = p.mat, sig.level = 0.01)
 ```
 
-![](visualization_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
+![](typesOfVisualization_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
 
 ``` r
 corrplot(M1, method="color",  
@@ -189,13 +189,13 @@ corrplot(M1, method="color",
          )
 ```
 
-![](visualization_files/figure-gfm/unnamed-chunk-3-2.png)<!-- -->
+![](typesOfVisualization_files/figure-gfm/unnamed-chunk-3-2.png)<!-- -->
 
 ``` r
 plot(data1)
 ```
 
-![](visualization_files/figure-gfm/unnamed-chunk-3-3.png)<!-- -->
+![](typesOfVisualization_files/figure-gfm/unnamed-chunk-3-3.png)<!-- -->
 
 ## Correlogram
 
@@ -206,7 +206,7 @@ corrgram(data1, order=NULL, panel=panel.shade, text.panel=panel.txt,
            main="Correlogram") 
 ```
 
-![](visualization_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+![](typesOfVisualization_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
 
 ## Boxplot
 
@@ -230,7 +230,7 @@ g +  geom_boxplot()+
   theme(axis.text.x = element_text(angle=65, vjust=0.6)) 
 ```
 
-![](visualization_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+![](typesOfVisualization_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
 
 ``` r
 # #plot_ly
@@ -256,7 +256,7 @@ g+ geom_violin(aes(fill=factor(Behavior))) +
                                   colour ="darkblue"))
 ```
 
-![](visualization_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+![](typesOfVisualization_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
 ## Dendrogram plot
 
@@ -302,7 +302,7 @@ groups <- cutree(fit, h = h)
 plot(fit, labels = dfdf3[,1], main = "Dendrogram")
 ```
 
-![](visualization_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+![](typesOfVisualization_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
 
 ## Chord-diagrams
 
@@ -316,7 +316,7 @@ dfdf11 <- dfdf11[,-1]
 chordDiagram(dfdf11)
 ```
 
-![](visualization_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+![](typesOfVisualization_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
 
 ## Radar Plot
 
@@ -359,7 +359,7 @@ comparedf <- rbind(maxdf,mindf,dfdf1,dfdf2,dfdf3)
 radarchart(comparedf)
 ```
 
-![](visualization_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+![](typesOfVisualization_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
 
 ``` r
 colors_border=c( rgb(0.2,0.5,0.5,0.9), rgb(0.8,0.2,0.5,0.9) , rgb(0.7,0.5,0.1,0.9) )
@@ -375,7 +375,7 @@ radarchart( comparedf  , axistype=1 ,
 legend(x=1.5, y=1, legend = rownames(comparedf[-c(1,2),]), bty = "n", pch=20 , col=colors_in , text.col = "grey", cex=1.2, pt.cex=3)
 ```
 
-![](visualization_files/figure-gfm/unnamed-chunk-9-2.png)<!-- -->
+![](typesOfVisualization_files/figure-gfm/unnamed-chunk-9-2.png)<!-- -->
 
 ## ggplot2
 
@@ -396,7 +396,7 @@ ggplot(df, aes(x=variable,y=value,group=Genotype)) +
   theme(legend.title = element_text(face="bold"))
 ```
 
-![](visualization_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+![](typesOfVisualization_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
 
 ``` r
 #facet_wrap
@@ -413,7 +413,7 @@ p +
   coord_flip()
 ```
 
-![](visualization_files/figure-gfm/unnamed-chunk-10-2.png)<!-- -->
+![](typesOfVisualization_files/figure-gfm/unnamed-chunk-10-2.png)<!-- -->
 
 ``` r
 #facet_grid
@@ -428,7 +428,7 @@ p1 <- ggplot(mean_df2, aes(x=variable,y = mean,fill=class)) +
 p1 + scale_fill_brewer(palette = "PuBu") +theme_dark() +theme(axis.text.x = element_text(angle=65, vjust=0.6)) 
 ```
 
-![](visualization_files/figure-gfm/unnamed-chunk-10-3.png)<!-- -->
+![](typesOfVisualization_files/figure-gfm/unnamed-chunk-10-3.png)<!-- -->
 
 ``` r
 #Multiple variables mean
@@ -464,7 +464,7 @@ ggplot(data2, aes(x=x1, y=SOD1_N,color=class)) +
   geom_smooth(position = "identity")
 ```
 
-![](visualization_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+![](typesOfVisualization_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
 
 ``` r
 # #line + scatter
@@ -488,7 +488,7 @@ ggplot(mean_df2, aes(x=variable, y=mean)) +
   labs(title="Lollipop Chart", subtitle="Treatment") 
 ```
 
-![](visualization_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+![](typesOfVisualization_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
 
 ## Density plot
 
@@ -505,4 +505,4 @@ g + geom_density(aes(fill=factor(class)), alpha=0.8) +
     facet_wrap(~Behavior)
 ```
 
-![](visualization_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+![](typesOfVisualization_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
