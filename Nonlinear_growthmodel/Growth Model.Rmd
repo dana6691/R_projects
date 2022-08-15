@@ -217,15 +217,3 @@ percent22 <- unique(percent2$Date)
 #12 = "y ~ a + b * (1 - exp(-c * x))" ruminal degradation curve
 #13 = "y~(a/(1+exp(2-4*c*(x-e))))+(b/(1+exp(2-4*d*(x-e))))" logistic bi-compartmental
 ```
-
-```{r}
-
-```
-
-```{r}
-
-```
-
-```{r}
-
-```
