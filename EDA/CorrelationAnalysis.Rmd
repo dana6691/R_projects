@@ -26,9 +26,9 @@ Hypothesis
 ```{r}
 library(GGally)
 ggpairs(data)
-#plot(data)
+# plot(data)
+# ggpairs(data, columns = c(15,82:87), ggplot2::aes(colour=Crop, na.rm = TRUE))
 ```
-
 
 ### 1. Pearson correlation test Correlogram
 ```{r fig.height=6, fig.width=6}
@@ -100,6 +100,18 @@ chart.Correlation(data, histogram=TRUE, pch=19)
 #### Method 6
 ```{r fig.height=4, fig.width=4, message=FALSE, warning=FALSE, paged.print=FALSE}
 plot(data)
+```
+
+#### Method 7. Correlation Network Plot
+```{r fig.height=6, fig.width=6, warning=FALSE}
+library(corrr) 
+library(dplyr)
+mydata <- data[,c(77:79,82:87)] # remove BiCarb_P,N
+res.cor <- correlate(mydata,use = "pairwise.complete.obs", method = "pearson") # "pearson", "kendall", "spearman"
+res.cor %>% rplot()
+res.cor %>%
+  mutate_if(is.numeric, coalesce, 0) %>% # replace NA to 0
+  network_plot(min_cor = .6)
 ```
 
 ### 2.Spearman’s rho correlation test
